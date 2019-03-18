@@ -71,3 +71,81 @@ var ProxySingletonCreateDiv = (function () {
 })();
 
 // 惰性单例模式
+// 见SinglePattenForWebQQ.html
+
+/*
+* 2. 策略模式
+*/
+
+// 计算奖金代码（垃圾版本）   拓展性、复用性低
+var calculateBouns = function (level, salary) {
+  if (level === 'S') {
+    return salary * 4;
+  }
+
+  if (level === 'A') {
+    return salary * 3;
+  }
+
+  if (level === 'B') {
+    return salary * 2;
+  }
+}
+
+calculateBouns('S', 10000);
+
+// 计算奖金代码-策略者模式（静态语言类型）
+
+// 三个策略对象
+var LevelS = function () {}
+LevelS.prototype.calculate = function (salary) {
+  return salary * 4
+}
+
+var LevelA = function () {}
+LevelS.prototype.calculate = function (salary) {
+  return salary * 3
+}
+
+var Levelb = function () {}
+LevelS.prototype.calculate = function (salary) {
+  return salary * 2
+}
+
+var Bouns = function () {
+  this.salary = null;
+  this.strategy = null;
+}
+
+Bouns.prototype.setSalary = function (salary) {
+  this.salary = salary;
+}
+Bouns.prototype.setStrategy = function (strategy) { 
+  this.strategy = strategy;
+}
+Bouns.prototype.getBouns = function () {
+  // 计算方式委托给策略对象
+  return this.strategy.calculate(this.salary);
+}
+
+// 计算奖金代码-策略者模式（JavaScript语言类型）
+
+var strategies = {
+  "S": function (salary) {
+    return salary * 4;
+  },
+  "A": function (salary) {
+    return salary * 3;
+  },
+  "B": function (salary) {
+    return salary * 2
+  }
+};
+
+var getBouns = function (level, salary) {
+  return strategies[level](salary);
+}
+
+
+// 策略模式实现缓动动画
+// 见
