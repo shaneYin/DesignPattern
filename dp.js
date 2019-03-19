@@ -120,7 +120,7 @@ var Bouns = function () {
 Bouns.prototype.setSalary = function (salary) {
   this.salary = salary;
 }
-Bouns.prototype.setStrategy = function (strategy) { 
+Bouns.prototype.setStrategy = function (strategy) {
   this.strategy = strategy;
 }
 Bouns.prototype.getBouns = function () {
@@ -148,4 +148,52 @@ var getBouns = function (level, salary) {
 
 
 // 策略模式实现缓动动画
-// 见
+// 见StrategyPatternAnimate.html
+
+// 策略模式实现表单验证
+// 见StrategyPatternFormValidation.html
+
+
+/*
+* 3. 代理模式
+*/
+
+// 业务场景：图片预加载
+var myImage = (function () {
+  var imgNode = document.createElement('img');
+  document.body.appendChild(imgNode);
+  return {
+    setSrc: function (src) {
+      imgNode.src = src;
+    }
+  }
+})();
+
+myImage.setSrc('http:// imgcache.qq.com/music/photo/k/000GGDys0yA0Nk.jpg');
+
+// 引入代理对象
+var myImage = (function () {
+  var imgNode = document.createElement('img');
+  document.body.appendChild(imgNode);
+  return {
+    setSrc: function (src) {
+      imgNode.src = src;
+    }
+  }
+})();
+
+var proxyImage = (function () {
+  var img = new Image();
+  img.onload = function () {
+    // 这里面的this代表img元素
+    myImage.setSrc(this.src);
+  }
+  return {
+    setSrc: function (src) {
+      myImage.setSrc('base64;xdidadlkf');
+      img.src = src;
+    }
+  }
+})();
+
+proxyImage.setSrc('http:// imgcache.qq.com/music/photo/k/000GGDys0yA0Nk.jpg');
