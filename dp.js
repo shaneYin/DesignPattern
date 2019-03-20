@@ -196,4 +196,127 @@ var proxyImage = (function () {
   }
 })();
 
-proxyImage.setSrc('http:// imgcache.qq.com/music/photo/k/000GGDys0yA0Nk.jpg');
+proxyImage.setSrc('http://imgcache.qq.com/music/photo/k/000GGDys0yA0Nk.jpg');
+
+// 代码模式常用有 虚拟代理和缓存代理
+
+// 动态创建缓存代理
+
+/******************计算乘积******************/
+var mult = function () {
+  var a = 1;
+  for (var i = 0; i < arguments.length; i++) {
+    a = a * arguments[i];
+  }
+  return a;
+}
+
+/******************计算加和******************/
+var plus = function () {
+  var a = 0;
+  for (var i = 0; i < arguments.length; i++) {
+    a = a + arguments[i]
+  }
+  return a;
+}
+
+/***************创建缓存代理工厂***************/
+var createProxyFactory = function (fn) {
+  var cache = {};
+  return function () {
+    var args = Array.prototype.join.call(arguments, ',');
+    if (args in cache) {
+      return cache[args];
+    }
+    return cache[args] = fn.apply(this, arguments);
+  }
+}
+
+var proxyMult = createProxyFactory(mult);
+
+
+/*
+* 4. 迭代器模式
+*/
+
+// 内部迭代（[].forEach）
+var each = function (arr, callback) {
+  for (var i = 0; i < arr.length; i++) {
+    callback.call(arr[i], i, arr[i]);
+  }
+}
+
+each([1,2,3], function (key, value) { console.log(value) });
+
+// 外部迭代
+var Iterator = function (obj) {
+  var current = 0;
+
+  var next = function () {
+    current += 1;
+  }
+
+  var isDone = function () {
+    return current === obj.length;
+  }
+
+  var getCurrItem = function () {
+    return obj[current];
+  }
+
+  return {
+    next: next,
+    isDone: isDone,
+    getCurrItem: getCurrItem
+  }
+}
+
+// 迭代器模式应用场景举例
+// 文件上传，根据不同浏览器获取相应的上传组件对象
+var getUploadObj = function () {
+  try {
+    return new ActiveXObject("TXFTNActiveX.FTNUpload");  // ie上传控件
+  } catch(e) {
+    if (supportFlash()) {
+      var str = '<object type="application/x-shockwave-flash"></object>';
+      return $( str ).appendTo( $('body') );
+    } else {
+      var str = '<input name="file" type="file"/>'; // 表单上传
+      return $( str ).appendTo( $('body') );
+    }
+  }
+}
+
+// 使用迭代器模式，对每一个策略进行迭代
+var getActiveUploadObj = function () {
+  try {
+    return new ActiveXObject("TXFTNActiveX.FTNUpload");  // ie上传控件
+  } catch(e) {
+    return false;
+  }
+}
+
+var getFlashUploadObj = function () {
+  if (supportFlash()) {
+    var str = '<object type="application/x-shockwave-flash"></object>';
+    return $( str ).appendTo( $('body') );
+  } else {
+    return false;
+  }
+}
+
+var getFormUploadObj = function () {
+  var str = '<input name="file" type="file"/>'; // 表单上传
+  return $( str ).appendTo( $('body') );
+}
+
+var iteratorUploadObj = function () {
+  for (var i = 0, fn; fn = arguments[i++];) {
+    var uploadObj = fn();
+    if (uploadObj !== false) {
+      return uploadObj;
+    }
+  }
+}
+
+var uploadObj = iteratorUploadObj( getActiveUploadObj, getFlashUploadObj, getFormUpladObj );
