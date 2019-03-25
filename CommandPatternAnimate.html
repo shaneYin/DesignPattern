@@ -1,12 +1,120 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>撤销操作</title>
-  </head>
-  <body>
-    <div id="ball" style="position:absolute;background:#000;width:50px;height:50px"></div>
-    输入小球移动后的位置：<input id="pos">
-    <button id="button">开始移动</button>
-  </body>
+
+<head>
+  <meta charset="utf-8">
+  <title>撤销操作</title>
+</head>
+
+<body>
+  <div id="ball" style="position:absolute;background:#000;width:50px;height:50px"></div>
+  输入小球移动后的位置：<input id="pos">
+  <button id="button">开始移动</button>
+  <button id="cancelButton">撤销移动</button>
+</body>
+<script type="text/javascript">
+  // 缓动函数 （策略对象）
+
+  var tween = {
+    /**
+     * 缓动函数
+     *
+     * @t {type} 动画已消耗的时间
+     * @b {type} 小球原始位置
+     * @c {type} 小球目标位置
+     * @d {type} 动画持续的总时间
+     */
+    linear: function(t, b, c, d) {
+      return c * t / d + b;
+    },
+    easeIn: function(t, b, c, d) {
+      return c * (t /= d) * t + b;
+    },
+    strongEaseIn: function(t, b, c, d) {
+      return c * (t /= d) * t * t * t * t + b;
+    },
+    strongEaseOut: function(t, b, c, d) {
+      return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+    },
+    sineaseIn: function(t, b, c, d) {
+      return c * (t /= d) * t * t + b;
+    },
+    sineaseOut: function(t, b, c, d) {
+      return c * ((t = t / d - 1) * t * t + 1) + b;
+    }
+  };
+
+  var Animate = function(dom) {
+    this.dom = dom; // dom节点
+    this.startTime = 0; // 动画开始时间
+    this.startPos = 0; // 动画开始时DOM的位置
+    this.endPos = 0; // 动画结束时DOM的位置
+    this.propertyName = null; // 需要改变的CSS属性
+    this.easing = null; // 运动类型
+    this.duration = null; // 持续时间
+  };
+
+  Animate.prototype.start = function(propertyName, endPos, duration, easing) {
+    this.startTime = +new Date;
+    this.startPos = this.dom.getBoundingClientRect()[propertyName];
+    this.propertyName = propertyName;
+    this.endPos = endPos;
+    this.duration = duration;
+    this.easing = tween[easing];
+
+    var self = this;
+    var timeId = setInterval(function() {
+      if (self.step() === false) {
+        clearInterval(timeId);
+      }
+    }, 19);
+  }
+
+  Animate.prototype.step = function() {
+    var t = +new Date;
+    if (t >= this.startTime + this.duration) {
+      this.update(this.endPos);
+      return false;
+    }
+    // pos是小球当前位置
+    var pos = this.easing(t - this.startTime, this.startPos, this.endPos - this.startPos, this.duration);
+    this.update(pos);
+  }
+
+  Animate.prototype.update = function(pos) {
+    this.dom.style[this.propertyName] = pos + 'px';
+  }
+
+
+  var ball = document.getElementById('ball'),
+    pos = document.getElementById('pos'),
+    button = document.getElementById('button');
+
+  var cancelButton = document.getElementById('cancelButton');
+
+  var MoveCommand = function (receiver, pos) {
+    this.receiver = receiver;
+    this.pos = pos;
+    this.oldPos = null;
+  }
+  MoveCommand.prototype.exeute = function () {
+    this.receiver.start('left', pos.value, 1000, 'strongEaseOut');
+    this.oldPos = this.receiver.dom.getBoundingClientRect()[ this.receiver.propertyName ]
+  }
+  MoveCommand.prototype.undo = function () {
+    this.receiver.start('left', this.oldPos, 1000, 'strongEaseOut');
+  }
+
+  var moveCommand;
+
+  button.onclick = function() {
+    var animate = new Animate(ball);
+    moveCommand = new MoveCommand(animate, pos.value);
+    moveCommand.exeute();
+  }
+  cancelButton.onclick = function () {
+    moveCommand.undo();
+  }
+</script>
+
 </html>

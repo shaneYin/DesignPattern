@@ -651,3 +651,38 @@ setCommand(button, refreshMenuBarCommand);
 
 // ** 带有撤销操作的命令模式
 // 见CommandPatternAnimate
+
+// ** 宏命令
+var closeCommand = function () {
+  execute: function () {
+    console.log('关门');
+  }
+}
+var openCommand = function () {
+  execute: function () {
+    console.log('开门')；
+  }
+}
+var openQQCommand = function () {
+  execute: function () {
+    console.log('打开QQ');
+  }
+}
+
+var MacroCommand = function () {
+  return {
+    commandList = [],
+    add: function (command) {
+      this.commandList.push(command);
+    },
+    execute: function () {
+      for (var i = 0, command;command = this.commandList[i++];) {
+        command.execute();
+      }
+    }
+  }
+}
+
+var macroCommand = MacroCmmand();
+macroCommand.add(closeCommand);
+macroCommand.execute();
