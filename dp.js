@@ -619,3 +619,35 @@ var Event = (function () {
   }
   return Event;
 })();
+
+
+/*
+* 5. 命令模式
+*/
+
+// ** JavaScript的命令模式（闭包方式）
+var RefreshMenuBarCommand = function (reciver) {
+  return {
+    excute: function () {
+      reciver.refresh();
+    }
+  }
+};
+
+var MenuBar = {
+  refresh: function () {
+    console.log("刷新操作);
+  }
+};
+
+var setCommand = function (button, command) {
+  button.onclick = function () {
+    command.excute();
+  }
+};
+
+var refreshMenuBarCommand = new RefreshMenuBarCommand(MenuBar);
+setCommand(button, refreshMenuBarCommand);
+
+// ** 带有撤销操作的命令模式
+// 见CommandPatternAnimate
